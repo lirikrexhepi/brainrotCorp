@@ -37,7 +37,7 @@ const ExportButton = ({ containerRef, captionText, textSettings }) => {
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
 
-    // Set canvas dimensions to match container
+    // Set canvas dimensions
     canvas.width = 350;
     canvas.height = Math.round(350 * (16 / 9));
 
@@ -50,9 +50,12 @@ const ExportButton = ({ containerRef, captionText, textSettings }) => {
       chunks.push(words.slice(i, i + wordsPerChunk).join(" "));
     }
 
-    const secondsPerChunk = 1; // Each chunk shows for 1 second
+    const secondsPerChunk = 1;
+    const startBuffer = 1; // 1 second before text starts
+    const endBuffer = 1; // 1 second after text ends
+    const totalDuration =
+      chunks.length * secondsPerChunk + startBuffer + endBuffer;
     const fps = 30;
-    const totalDuration = chunks.length * secondsPerChunk;
     const frameCount = totalDuration * fps;
 
     const frames = [];
@@ -89,12 +92,16 @@ const ExportButton = ({ containerRef, captionText, textSettings }) => {
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(video, x, y, drawWidth, drawHeight);
 
-      // Calculate which chunk should be shown
-      const currentChunkIndex = Math.floor(time / secondsPerChunk);
-      const currentChunk = chunks[currentChunkIndex];
+      // Modify the text overlay timing
+      const textTime = time - startBuffer;
+      const currentChunkIndex = Math.floor(textTime / secondsPerChunk);
+      const currentChunk =
+        currentChunkIndex >= 0 && currentChunkIndex < chunks.length
+          ? chunks[currentChunkIndex]
+          : null;
 
-      // Add text overlay if we have a current chunk
-      if (currentChunk && currentChunkIndex < chunks.length) {
+      // Only draw text if we're within the text display period
+      if (currentChunk) {
         ctx.font = `${textSettings.fontWeight} ${textSettings.fontSize}px Inter`;
         ctx.textAlign = "center";
 
@@ -110,7 +117,7 @@ const ExportButton = ({ containerRef, captionText, textSettings }) => {
         const fadeInDuration = 0.2; // seconds
         const fadeOutDuration = 0.2; // seconds
         const chunkStartTime = currentChunkIndex * secondsPerChunk;
-        const timeIntoChunk = time - chunkStartTime;
+        const timeIntoChunk = textTime - chunkStartTime;
 
         let alpha = 1;
         if (timeIntoChunk < fadeInDuration) {

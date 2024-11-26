@@ -3,6 +3,7 @@ import { Toaster } from "react-hot-toast";
 import VideoPlayer from "./components/VideoPlayer";
 import CaptionInput from "./components/CaptionInput";
 import ExportButton from "./components/ExportButton";
+import YouTubeInput from "./components/YouTubeInput";
 
 const videoOptions = [
   {
@@ -82,6 +83,11 @@ function App() {
               </button>
             ))}
           </div>
+        </section>
+
+        <section className="space-y-4">
+          <h2 className="text-lg font-semibold">Import YouTube Video</h2>
+          <YouTubeInput onVideoSelect={setSelectedVideo} />
         </section>
 
         <section className="space-y-4">
